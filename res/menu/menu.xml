@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+ <item android:enabled="true" android:visible="true" android:title="@string/str_new_calibration_point" android:id="@+id/new_calibration_point"></item>
+ <item android:id="@+id/use_calibration_point" android:title="@string/str_use_calibration_point" android:visible="true" android:enabled="false"></item>
+ <item android:id="@+id/new_map" android:title="@string/str_new_map">
+     <menu>
+ 		<item android:id="@+id/new_from_file" android:title="@string/str_new_from_file" android:visible="true" android:enabled="true"></item>	
+ 		<item android:id="@+id/new_from_camera" android:title="@string/str_new_from_camera" android:visible="true" android:enabled="true"></item>
+ 		<item android:id="@+id/new_from_previous" android:title="@string/str_new_from_previous"/>        
+     </menu>
+ </item> 
+ <item android:id="@+id/More" android:title="@string/str_more">
+     <menu>
+ 		<item android:id="@+id/reference_points" android:title="@string/str_coordinate_list"/>
+ 		<item android:id="@+id/preferences" android:title="@string/str_preferences" /><item android:enabled="true" android:visible="true" android:id="@+id/information" android:title="@string/str_information"></item>
+ 		        
+     </menu>
+ </item> 
+</menu>

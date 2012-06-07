@@ -1,0 +1,29 @@
+* Gör det möjligt att ta backup på databasen. Samt inställningarna.
+
+* Om jag ska sampla om bilden så måste jag även göra om kalibreringen eftersom den är knuten till samplingen
+  Måste triggas från vyn. Kanske lägga över kalibreringen i ett annat objekt?
+  Skulle även underlätta i framtiden om jag vill kunna välja vilka punkter som ska användas vid kalibreringen. 
+
+* Gör om så att sparadet av referenspunkten sker i en egen activity så får det plats bättre.
+
+* Visa changelog efter nyinstallation.
+
+* Kolla upp om jag behöver kolla om sd-kordet körs i read-only/finns osv.
+ http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
+
+* Starta bilden i utzoomat läge så att man ser hela
+
+* Kolla upp BitmapRegionDecoder i android 2.3.3
+  http://developer.android.com/reference/android/graphics/BitmapRegionDecoder.html
+  Ger möjlighet att koda av en liten del av en bild.
+  Måste i så fall skapa stöd för detta:
+  * Om bilden har lästs in med inSampleSize == 1 så behöver man inte göra något alls.
+  * Läs ut ett nytt utsnitt om:
+    * zoomar in (minska inSampleSize och flytta (eventuellt?) utsnittet)
+    * zoomar ut så att (den utlästa delen av) bilden inte täcker skärmen (öka inSampleSize)    
+    * Vid rörelse så att en del av skärmen inte är täckt (flytta utsnittet)
+  * Räkna om alla bildkoordinater så att de tar hänsyn till var de är egentligen
+    * Referenspunkter
+      * På skärmen
+      * sparade i databasen
+    * Positionspunkten

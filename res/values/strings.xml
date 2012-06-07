@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, MapCalibrator!</string>
+    <string name="app_name">MapCalibrator</string>
+
+<string name="str_new_calibration_point">New Reference Point</string>
+<string name="str_use_calibration_point">Use Reference Point</string>
+<string name="str_new_from_file">From File</string>
+<string name="str_new_from_camera">From Camera</string>
+<string name="str_menu_information">MapCalibrator takes an image of a custom map and calibrates it to the real world using 2, 3 or 4 reference points. Use the built in camera function to take a picture of a map or store a digital copy of a map in the MapCalibrator folder in the external storage folder, usually /sdcard.&lt;p&gt;Use the &lt;strong&gt;menu&lt;/strong&gt; button to see all available options.&lt;p&gt;The intended workflow is:&lt;br&gt;1. Import a map from a file (or the camera).&lt;br&gt;2. Create a reference point.&lt;br&gt;3. Position the reference point at your current position on the map.&lt;br&gt;4. Store the reference point.&lt;br&gt;5. Continue to create new reference points until you are satisfied with the recieved accuracy.&lt;p&gt;Calibration methods:&lt;br&gt;&lt;strong&gt;2 points: &lt;/strong&gt;Will be available in the future. This method only works under some very special circumstances.&lt;br&gt;&lt;strong&gt;3 points: &lt;/strong&gt;The normal method.&lt;br&gt;&lt;strong&gt;4 points: &lt;/strong&gt;Suggested method if you are using camera pictures of maps. Takes the skew of the image into account.&lt;p&gt;Please direct questions and comments to MapCalibrator@gmail.com.</string>
+<string name="str_information">About</string>
+<string name="str_menu_information_3_points">NOTE: Take care what is in the &quot;Accuracy&quot; and &quot;Age&quot; fields when you save a reference point. A bad accuracy or an old measurement (if you have changed your position since) will ruin the calibration of the map.&lt;p&gt;MapCalibrator now contains experimental support for using very large images with full resolution (no down sampling). This support must be enabled in the preferences before loading a map.&lt;p&gt;MapCalibrator takes an image of a custom map and calibrates it to the real world using 3 reference points.&lt;p&gt;Use the built in camera to take a picture of a map at the site, or store a high resolution map on the sd-card before going out.&lt;p&gt;Use the &lt;strong&gt;menu&lt;/strong&gt; button to see all available options.&lt;p&gt;The intended workflow is:&lt;br&gt;1. Import a map from a file (or the camera).&lt;br&gt;2. Create a reference point.&lt;br&gt;3. Position the reference poin at your current position on the map.&lt;br&gt;4. Store the reference point.&lt;p&gt;Please direct questions and comments to MapCalibrator@gmail.com.</string>
+<string name="str_gps_conversion_error">The supplied gps coordinates were not in a format that is understood by MapCalibrator.&lt;p&gt;Please check that the GPS is turned on and that the displayed coordinates look ok.&lt;p&gt;If you know that you have done nothing wrong, and still get this error, then please contact MapCalibrator@gmail.com and report a bug.</string>
+<string name="str_restore_reference_points">You have previously saved reference points for the map you are now trying to load.&lt;BR&gt;Do you want to use them?&lt;P&gt;Note that answering \&quot;No\&quot; will erase all previously saved reference points for this map.</string>
+<string name="str_successfylly_calibrated">Your map have now been successfully calibrated.&lt;P&gt;From now on, your position will be marked on the map.&lt;P&gt;You can continue to add more reference points, but in the current implementation they will not be used.</string>
+<string name="str_failed_to_calibrate">The calibration failed. This is probably due to bad accuracy in the calibration points.</string>
+<string name="no_coordinates">No reference points have been added.</string>
+<string name="str_coordinate_list">Reference points</string>
+<string name="str_more">More</string>
+<string name="str_new_map">New Map</string>
+<string name="str_new_from_previous">From Previous Maps</string>
+<string name="str_open_map">Open map</string>
+<string name="str_no_maps">No maps have previously been used</string>
+<string name="str_preferences">Preferences</string>
+<string name="str_background_information">Use the menu to load maps</string>
+</resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <CheckBoxPreference android:key="supportLargeMaps" android:summary="Experimental support for really large image files without downsampling. Only available on Android 2.3.3 and higher." android:title="Support very large maps"/>
+</PreferenceScreen>

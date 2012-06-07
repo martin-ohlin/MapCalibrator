@@ -1,0 +1,41 @@
+1.1.0
+Memory is handled better when reloading a map, which should remove a bug where the image was loaded in degraded resolution the second time it was loaded.
+Corrected a bug which made the image become too much degraded if down sampling was needed due to memory constraints set by the system.
+Experimental support for loading (really) high resolution images without down sampling them. This support must be enabled in the preferences and only works for .jpg and .png images in Android 2.3.3 and higher. 
+Single click in the map list is now enough to load a map.
+
+1.0.11
+The previously saved maps are now displayed in a list with possibility to open them directly.
+The number of saved reference points for the maps is displayed in the map list.
+Corrected 2 possibilities for "Force Close".
+
+1.0.10
+Corrected a bug which made the menu behave strange in some cases.
+
+1.0.9
+An error message is displayed when the calibration fails.
+The reference points are now possible to display in a list.
+
+1.0.8
+Removed some experimental code which was intended to be in a future update of the application.
+
+1.0.7
+Added more information to the reference point saving dialog, so that user will be aware if they are trying to calibrate a map using old or inaccurate readings.
+
+
+
+1.0.?
+* Standard Gallery is used as file chooser.
+* Information message is only shown at the first startup after an upgrade.
+* Subsequent startups trigger the file chooser.
+* Corrected the path of the image received through the camera.
+
+1.0.?
+
+1.0.4
+* Corrected a ClassCastException when resuming from a killed state. Apparently, you can not cast an array of a supertype into an array of a subtype in Java.
+* Added a dialog telling the user if something went wrong when saving a reference point.
+* Added a workaround to make android able to convert gps coordinates in all locales. http://code.google.com/p/android/issues/detail?id=5734 
+
+1.0.5
+* Dismiss Dialogs in OnPause() 
