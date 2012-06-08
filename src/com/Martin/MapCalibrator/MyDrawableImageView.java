@@ -152,6 +152,16 @@ public class MyDrawableImageView extends ImageView{
 			makeUseOfNewLocation(m_SavableData.lastLocation); //Draw out position on the map.
 	}
 	
+	/*
+	 * Resets the map calibration.
+	 */
+	protected void resetMapMatrix() {
+		m_SavableData.gpsToMapMapMatrix = new Matrix(); //Needs to be something when we parcel it.
+		m_SavableData.isTrackingPosition = false;
+		// Make the view redraw itself so that a possible position point is removed
+		postInvalidate();		
+	}
+	
 	protected void setMap(File bitmapFile) {
 		// TODO: If we are called here upon reawakening, then we might have to do som stuff in a different way
 		// E.g., we shouldn't clear the image matrices
@@ -297,7 +307,7 @@ public class MyDrawableImageView extends ImageView{
 			//displayRectF.offset(x, 0);
 			
 			Matrix displayToMapConversionMatrix = new Matrix();
-			boolean inversionResult = m_SavableData.currentGlobalMapToDisplayMatrix.invert(displayToMapConversionMatrix); // This better work or... 
+			m_SavableData.currentGlobalMapToDisplayMatrix.invert(displayToMapConversionMatrix); // This better work or... 
 			RectF displayOnMapRectF = new RectF(displayRectF);
 			displayToMapConversionMatrix.mapRect(displayOnMapRectF, displayRectF);			
 			int diffXMap = (int) displayOnMapRectF.centerX() - m_mapRectRead.centerX(); // X-axis is to the right

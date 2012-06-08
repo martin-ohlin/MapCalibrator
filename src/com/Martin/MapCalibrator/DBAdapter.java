@@ -48,13 +48,10 @@ public class DBAdapter {
 			+ "longitude real,"
 			+ "mapX real," + "mapY real);";
 
-	private final Context context;
-
 	private DatabaseHelper DBHelper;
 	private SQLiteDatabase db;
 
-	public DBAdapter(Context context) {
-		this.context = context;
+	public DBAdapter(Context context) {		
 		DBHelper = new DatabaseHelper(context);
 	}
 

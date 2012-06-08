@@ -42,12 +42,12 @@ import android.widget.Toast;
 public class MapCalibrator extends Activity {
 	private SaveData m_SavableData;
 	
-	private static final int DIALOG_COORDINATE_VERIFICATION_ID 	= 0;
-	private static final int DIALOG_INFORMATION_ID 				= 1;
-	private static final int DIALOG_CONVERSION_ERROR 			= 2;
-	private static final int DIALOG_RESTORE_REFERENCE_POINTS	= 3;
-	private static final int DIALOG_MAP_IS_CALIBRATED			= 4;
-	private static final int DIALOG_MAP_FAILED_TO_CALIBRATE		= 5;
+	private static final int DIALOG_COORDINATE_VERIFICATION_ID = 0;
+	private static final int DIALOG_INFORMATION_ID 			  = 1;
+	private static final int DIALOG_CONVERSION_ERROR 			  = 2;	
+	private static final int DIALOG_MAP_IS_CALIBRATED			  = 4;
+	private static final int DIALOG_MAP_FAILED_TO_CALIBRATE    = 5;
+	private static final int DIALOG_RESET_REFERENCE_POINTS     = 6;
 	
 	private static final int TAKE_PICTURE   = 0;
 	private static final int SELECT_PICTURE = 2;
@@ -73,18 +73,8 @@ public class MapCalibrator extends Activity {
 				//Log.e(TAG, "unable to write on the sd card " + e.toString());		  
 			}
 		}		  
-		
-		//check if custom title is supported BEFORE setting the content view!
-		//Must be before setContentView
-		//TODO:Make the custom title look better so that we can use it.
-		//customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 				
 		setContentView(R.layout.main);		
-				
-		//test();
-		
-		//Must be after the call to setContentView
-		//setCustomTitleBar("MapCalibrator", "±400m");
 		
 		if(savedInstanceState != null && !savedInstanceState.isEmpty())
 		{
@@ -140,20 +130,6 @@ public class MapCalibrator extends Activity {
 		
 		database = new DBAdapter(this);
 	}
-	
-	/*
-	private void setCustomTitleBar(String left, String right) {
-		if (right.length() > 20) right = right.substring(0, 20);
-		// set up custom title
-		if (customTitleSupported) {
-			getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.customtitlebar);
-			TextView titleTvLeft = (TextView) findViewById(R.id.titleTvLeft);
-			TextView titleTvRight = (TextView) findViewById(R.id.titleTvRight);
-			titleTvLeft.setText(left);
-			titleTvRight.setText(right);	
-		}
-	}
-	*/
 	
 	protected void updateCustomTitleBar(String right) {
 		if (right.length() > 20) right = right.substring(0, 20);
@@ -241,7 +217,7 @@ public class MapCalibrator extends Activity {
 			if (database.mapHasReferencePoints(m_SavableData.m_iMapKey))
 			{
 				database.close();
-				showDialog(DIALOG_RESTORE_REFERENCE_POINTS);
+				loadAndUseOldReferencePoints();				
 			}			
 		}
 		else
@@ -277,6 +253,7 @@ public class MapCalibrator extends Activity {
 			database.open();
 			database.deleteReferencePoints(m_SavableData.m_iMapKey);
 			database.close();
+			m_SavableData.coordinateMappingList = new ArrayList<CoordinateMapping>();
 		}
 	}
 	
@@ -350,6 +327,11 @@ public class MapCalibrator extends Activity {
 			startActivity(intent);
 			return true;
 		}
+		case R.id.reset_reference_points:
+		{
+			showDialog(DIALOG_RESET_REFERENCE_POINTS);
+			return true;
+		}
 		case R.id.new_from_previous:
 		{
 			Intent intent = new Intent(this, MapList.class);			
@@ -414,22 +396,22 @@ public class MapCalibrator extends Activity {
 				       });			
 			dialog = builder.show();
 		}
-		break;
-		case DIALOG_RESTORE_REFERENCE_POINTS:
+		break;		
+		case DIALOG_RESET_REFERENCE_POINTS:
 		{
 			AlertDialog.Builder builder = new Builder(this);
-			builder.setTitle("Restore Reference Points");			
-			builder.setMessage(Html.fromHtml(getString(R.string.str_restore_reference_points)))
+			builder.setTitle("Reset Reference Points");			
+			builder.setMessage(Html.fromHtml(getString(R.string.str_reset_reference_points_verification)))
 			 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					dialog.dismiss(); //TODO:Load the reference points and possibly calibrate the map.
-					loadAndUseOldReferencePoints();					
+					dialog.dismiss();
+					deleteOldReferencePoints();
+					m_SavableData.mapView.resetMapMatrix();					
 				}
 			 })
 			 .setNegativeButton("No", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
-					dialog.dismiss();
-					deleteOldReferencePoints();
+					dialog.dismiss();					
 				}
 			 });
 			dialog = builder.show();

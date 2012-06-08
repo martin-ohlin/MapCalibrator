@@ -15,7 +15,7 @@
 <string name="str_successfylly_calibrated">Your map have now been successfully calibrated.&lt;P&gt;From now on, your position will be marked on the map.&lt;P&gt;You can continue to add more reference points, but in the current implementation they will not be used.</string>
 <string name="str_failed_to_calibrate">The calibration failed. This is probably due to bad accuracy in the calibration points.</string>
 <string name="no_coordinates">No reference points have been added.</string>
-<string name="str_coordinate_list">Reference points</string>
+<string name="str_coordinate_list">View reference points</string>
 <string name="str_more">More</string>
 <string name="str_new_map">New Map</string>
 <string name="str_new_from_previous">From Previous Maps</string>
@@ -23,4 +23,6 @@
 <string name="str_no_maps">No maps have previously been used</string>
 <string name="str_preferences">Preferences</string>
 <string name="str_background_information">Use the menu to load maps</string>
+<string name="str_reset_reference_points">Reset reference points</string>
+<string name="str_reset_reference_points_verification">Do you want to erase all reference points for this map?</string>
 </resources>

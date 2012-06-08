@@ -1,3 +1,17 @@
+* One user has reported that some images does not load completely. The top and bottom is cut off.
+  Maybe this is due to the delayed loading? 
+
+* Possibility to see distance on the map
+
+* Sharing maps?
+
+* Waypoints and naming waypoints. 
+
+* Possibility to rename maps.
+
+* Move the option to clear reference points to a better place than when loading the map.
+  Maybe to the reference points list.
+
 * Gör det möjligt att ta backup på databasen. Samt inställningarna.
 
 * Om jag ska sampla om bilden så måste jag även göra om kalibreringen eftersom den är knuten till samplingen
@@ -12,18 +26,3 @@
  http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
 
 * Starta bilden i utzoomat läge så att man ser hela
-
-* Kolla upp BitmapRegionDecoder i android 2.3.3
-  http://developer.android.com/reference/android/graphics/BitmapRegionDecoder.html
-  Ger möjlighet att koda av en liten del av en bild.
-  Måste i så fall skapa stöd för detta:
-  * Om bilden har lästs in med inSampleSize == 1 så behöver man inte göra något alls.
-  * Läs ut ett nytt utsnitt om:
-    * zoomar in (minska inSampleSize och flytta (eventuellt?) utsnittet)
-    * zoomar ut så att (den utlästa delen av) bilden inte täcker skärmen (öka inSampleSize)    
-    * Vid rörelse så att en del av skärmen inte är täckt (flytta utsnittet)
-  * Räkna om alla bildkoordinater så att de tar hänsyn till var de är egentligen
-    * Referenspunkter
-      * På skärmen
-      * sparade i databasen
-    * Positionspunkten

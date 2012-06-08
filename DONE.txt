@@ -1,3 +1,6 @@
+1.1.1
+Existing reference points are automatically loaded when a map is loaded. The reference points can be cleared using the menu.
+
 1.1.0
 Memory is handled better when reloading a map, which should remove a bug where the image was loaded in degraded resolution the second time it was loaded.
 Corrected a bug which made the image become too much degraded if down sampling was needed due to memory constraints set by the system.
