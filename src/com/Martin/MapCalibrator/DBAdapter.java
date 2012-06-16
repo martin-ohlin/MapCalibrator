@@ -27,6 +27,8 @@ public class DBAdapter {
 	public static final String KEY_MAP_ROWID = "_mapid";
 	public static final String KEY_MAP_FILENAME = "filename";
 	public static final String KEY_MAP_FILEPATH = "filepath";
+	public static final String KEY_MAP_COMMENT = "comment";
+	
 	public static final String KEY_POINTS_ROWID = "_pointid";
 	public static final String KEY_POINTS_MAPKEY = "mapkey";
 	public static final String KEY_POINTS_LATITUDE = "latitude";
@@ -34,19 +36,22 @@ public class DBAdapter {
 	public static final String KEY_POINTS_MAPX = "mapX";
 	public static final String KEY_POINTS_MAPY = "mapY";
 
-	private static final int DATABASE_VERSION = 1;
+	//private static final int DATABASE_VERSION = 1;  // First version
+	private static final int DATABASE_VERSION = 2; // Added a comment column in the maps table
 
 	private static final String DATABASE_CREATE_TABLE_1 = "create table maps ("
-			+ KEY_MAP_ROWID + " integer primary key autoincrement,"
-			+ "filename text not null," + "filepath text not null);";
+			+ KEY_MAP_ROWID    + " integer primary key autoincrement,"
+			+ KEY_MAP_FILENAME + " text not null,"
+			+ KEY_MAP_FILEPATH + " text not null,"
+			+ KEY_MAP_COMMENT  + " text);";
 
 	private static final String DATABASE_CREATE_TABLE_2 = "create table referencepoints ("
-			+ KEY_POINTS_ROWID
-			+ " integer primary key autoincrement, "
-			+ "mapkey integer,"
-			+ "latitude real,"
-			+ "longitude real,"
-			+ "mapX real," + "mapY real);";
+			+ KEY_POINTS_ROWID     + " integer primary key autoincrement, "
+			+ KEY_POINTS_MAPKEY    + " integer,"
+			+ KEY_POINTS_LATITUDE  + " real,"
+			+ KEY_POINTS_LONGITUDE + " real,"
+			+ KEY_POINTS_MAPX      + " real,"
+			+ KEY_POINTS_MAPY      + " real);";
 
 	private DatabaseHelper DBHelper;
 	private SQLiteDatabase db;
@@ -68,7 +73,11 @@ public class DBAdapter {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			// No upgrade yet.
+			// Add the comment column to the map table
+		    if (oldVersion == 1 && newVersion == 2) {
+		        db.execSQL("ALTER TABLE " + DATABASE_TABLE_1 + " ADD COLUMN " + KEY_MAP_COMMENT + " TEXT;");
+		    	//db.execSQL("ALTER TABLE " + DATABASE_TABLE_1 + " DROP COLUMN " + KEY_MAP_COMMENT);
+		    }
 		}
 	}
 
@@ -141,6 +150,52 @@ public class DBAdapter {
 	 */
 	public void deleteReferencePoints(long mapkey) {
 		db.delete(DATABASE_TABLE_2, KEY_POINTS_MAPKEY + "=" + mapkey, null);
+	}
+	
+	/**
+	 * Updates the comment for a map.
+	 * 
+	 * @param mapkey 
+	 *         The row id of the map.
+	 * @param comment
+	 *         The comment to add to the map.
+	 *  
+	 * @return true if successful, false otherwise
+	 */
+	public boolean updateMapComment(long mapKey, String comment)
+	{
+		ContentValues updateValues = new ContentValues();
+		updateValues.put(KEY_MAP_COMMENT, comment);
+		String whereClause = KEY_MAP_ROWID + "=?";
+		String[] whereArgs = new String[] { Long.toString(mapKey) };
+		int affectedRows = db.update(DATABASE_TABLE_1, updateValues, whereClause, whereArgs);
+		
+		return affectedRows == 1;
+	}
+	
+	/**
+	 * Gets the comment for a map if it exists.
+	 * 
+	 * @param mapKey
+	 *            The row id of the map.
+	 * @return The comment for a map if it exists, otherwise "".
+	 * @throws SQLException
+	 */
+	public String getMapComment(long mapKey) throws SQLException {
+		String selection = KEY_MAP_ROWID + " =? ";
+		String[] selectionArgs = new String[] { Long.toString(mapKey) };
+		Cursor mCursor = db.query(DATABASE_TABLE_1,
+				new String[] { KEY_MAP_COMMENT }, selection, selectionArgs, null, null, null);
+		String mapComment = "";
+		if (mCursor != null) {
+			if (mCursor.moveToFirst()) {
+				int columnIndex = mCursor.getColumnIndexOrThrow(KEY_MAP_COMMENT);
+				mapComment = mCursor.getString(columnIndex);
+				mCursor.close();
+			}
+		}
+
+		return mapComment;
 	}
 
 	// ---retrieves all reference points for a given map
@@ -232,12 +287,15 @@ public class DBAdapter {
 				" FROM " + DATABASE_TABLE_1;
 			*/	
 		
-		String query = "SELECT " + KEY_MAP_ROWID + " as _id, " +
-				KEY_MAP_FILENAME  + ", " +
-				KEY_MAP_FILEPATH + ", " +
-				"(SELECT COUNT("+ KEY_POINTS_MAPKEY + ") FROM " 
-				+ DATABASE_TABLE_2 + " WHERE " + KEY_POINTS_MAPKEY + "=" + KEY_MAP_ROWID + ") as nbr_of_points" +
-				" FROM " + DATABASE_TABLE_1;
+		String query = 
+                "SELECT " + KEY_MAP_ROWID + " as _id, "
+				+ KEY_MAP_FILENAME + ", "
+                + KEY_MAP_FILEPATH + ", "
+                + KEY_MAP_COMMENT + ", "
+				+ "(SELECT COUNT(" + KEY_POINTS_MAPKEY + ") FROM "
+				+ DATABASE_TABLE_2 + " WHERE " + KEY_POINTS_MAPKEY + "="
+				+ KEY_MAP_ROWID + ") as nbr_of_points" 
+				+ " FROM " + DATABASE_TABLE_1;
 				
 		
 		/*

@@ -64,6 +64,8 @@ public class MapCalibrator extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		database = new DBAdapter(this);
+		
 		// Create our folder if it is not already created
 		if(!mPath.exists()){
 			try{
@@ -97,7 +99,7 @@ public class MapCalibrator extends Activity {
 				locationListener.startListening();
 			}
 		}
-		else
+		else // Let's start from scratch
 		{
 			m_SavableData = new SaveData();
 			//findViewById is only visible in Activity and View, therefore I can not create it in my object
@@ -105,7 +107,7 @@ public class MapCalibrator extends Activity {
 			
 			// Restore preferences
 			SharedPreferences settings = getPreferences(MODE_PRIVATE);
-			int oldVersion = settings.getInt("version", 0);			
+			int oldVersion = settings.getInt("version", 0);
 			int currentVersion = 0;
 			PackageInfo pInfo = null;			
 			try {
@@ -126,9 +128,17 @@ public class MapCalibrator extends Activity {
 						"Use the menu button to see all available options.", Toast.LENGTH_LONG)
 						.show();
 			}
+			
+			//Get the last used map (if any)
+			String lastUsedMap = settings.getString("lastUsedMap", "");			
+			if (lastUsedMap != "")
+			{
+				m_SavableData.mapFile = new File(lastUsedMap);
+				resetForNewMap();
+			}
+			
+			
 		}
-		
-		database = new DBAdapter(this);
 	}
 	
 	protected void updateCustomTitleBar(String right) {
@@ -209,6 +219,12 @@ public class MapCalibrator extends Activity {
 		m_SavableData.mapView.setSupportLargeMaps(supportLargeMaps); // Must be called before setMap(
 		
 		m_SavableData.mapView.setMap(m_SavableData.mapFile);
+		
+		// Save the last used map s that we can auto load it upon next run
+		SharedPreferences settings = getPreferences(MODE_PRIVATE);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString("lastUsedMap", m_SavableData.mapFile.getAbsolutePath());
+		editor.commit();
 		
 		database.open();
 		m_SavableData.m_iMapKey = database.getMapKey(m_SavableData.mapFile.getAbsolutePath());
@@ -476,6 +492,7 @@ public class MapCalibrator extends Activity {
 		return dialog;
 	}
 		
+	@Override
 	protected void  onPrepareDialog(int id, Dialog dialog) {
 		super.onPrepareDialog(id, dialog);
 		

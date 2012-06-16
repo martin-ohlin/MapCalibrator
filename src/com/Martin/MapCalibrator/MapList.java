@@ -1,7 +1,6 @@
 package com.Martin.MapCalibrator;
 
 import java.io.File;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -17,15 +16,23 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+
 public class MapList extends ListActivity {
 
 	private DBAdapter mDbHelper;
-	private static final int OPEN_MAP_ID = 1;
-	private static final int DIALOG_MAP_DOES_NOT_EXIST	= 0;
+	private static final int MENU_OPEN_MAP_ID     = 1;
+	private static final int MENU_EDIT_COMMENT_ID = 2;
+	
+	private static final int DIALOG_MAP_DOES_NOT_EXIST = 0;	
+	private static final int DIALOG_EDIT_COMMENT_ID    = 1;
+	
+	private static final String EDIT_COMMENT_MAPID_KEY = "edit_comment_mapid_key";
 
 	/** Called when the activity is first created. */
 	@Override
@@ -42,7 +49,8 @@ public class MapList extends ListActivity {
 	@Override
 	public void onCreateContextMenu (ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 	    super.onCreateContextMenu(menu, v, menuInfo);
-	    menu.add(0, OPEN_MAP_ID, 0, R.string.str_open_map);
+	    menu.add(0, MENU_OPEN_MAP_ID, 0, R.string.str_open_map);
+	    menu.add(0, MENU_EDIT_COMMENT_ID, 0, R.string.str_add_comment_to_map);
 	}
 
 	@Override
@@ -73,21 +81,34 @@ public class MapList extends ListActivity {
 		}
 	}
 	
+	private void updateMapComment(long mapKey, String comment)
+	{
+		mDbHelper.updateMapComment(mapKey, comment);
+	}
+	
 	@Override
 	public boolean onContextItemSelected (MenuItem item) {
 		switch (item.getItemId()) {
-		case OPEN_MAP_ID:
+		case MENU_OPEN_MAP_ID:
 		{			
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();			
 			openMap(info.id);			
 			return true;			
-		}			
+		}
+		case MENU_EDIT_COMMENT_ID:
+		{			
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();			
+			Bundle args = new Bundle();
+			args.putLong(EDIT_COMMENT_MAPID_KEY, info.id);
+			showDialog(DIALOG_EDIT_COMMENT_ID, args);
+			return true;						
+		}
 		default:
 			return super.onContextItemSelected(item);
 		}
 	}
 	
-	protected Dialog onCreateDialog(int id) {
+	protected Dialog onCreateDialog(int id, Bundle args) {
 		Dialog dialog = null;
 		switch (id) {		
 		case DIALOG_MAP_DOES_NOT_EXIST:
@@ -102,21 +123,47 @@ public class MapList extends ListActivity {
 				       });			
 			dialog = builder.show();
 		}
-		break;		
-		
+		break;
+		case DIALOG_EDIT_COMMENT_ID:
+		{
+			dialog = new Dialog(this);
+			dialog.setContentView(R.layout.edit_map_comment_dialog);
+			dialog.setTitle("Edit comment");
+
+			final Button button = (Button) dialog.findViewById(R.id.edit_map_comment_button_ok);
+			button.setOnClickListener(new EditMapCommentClickListener());
+		}
+			break;
 		default:
 			dialog = null;
 		}
 		return dialog;
 	}
 	
+	@Override
+	protected void  onPrepareDialog(int id, Dialog dialog, Bundle args) {
+		super.onPrepareDialog(id, dialog);
+		
+		switch (id) {
+		case DIALOG_EDIT_COMMENT_ID:						
+			// GPS coordinates
+			EditText mapComment = (EditText) dialog.findViewById(R.id.edit_map_comment_commentText);
+			Long mapid = args.getLong(EDIT_COMMENT_MAPID_KEY);
+			String strMapComment = mDbHelper.getMapComment(mapid);
+			mapComment.setText(strMapComment, TextView.BufferType.EDITABLE);
+			
+			TextView mapidView = (TextView) dialog.findViewById(R.id.edit_map_comment_mapid);
+			mapidView.setText(Long.toString(mapid));
+			break;
+		}
+	}
 	
 	private void fillData() {
 		Cursor c = mDbHelper.getAllMaps();
 		startManagingCursor(c);
 
-		String[] from = new String[] {DBAdapter.KEY_MAP_FILENAME, DBAdapter.KEY_MAP_FILEPATH, "nbr_of_points"};
-		int[] to = new int[] {R.id.map_list_file_name, R.id.map_list_file_path, R.id.map_list_nbr_of_points};
+		String[] from = new String[] {DBAdapter.KEY_MAP_FILENAME, DBAdapter.KEY_MAP_FILEPATH, DBAdapter.KEY_MAP_COMMENT, "nbr_of_points"};
+		int[] to = new int[] {R.id.map_list_file_name, R.id.map_list_file_path, R.id.map_list_file_comment ,R.id.map_list_nbr_of_points};
 
 		if (c != null) {
 			if (c.moveToFirst()) {
@@ -160,6 +207,28 @@ public class MapList extends ListActivity {
 				text = Location.convert(Double.parseDouble(text), Location.FORMAT_MINUTES);
 			}
 			v.setText(text);
+		}
+	}
+	
+	private class EditMapCommentClickListener implements View.OnClickListener {
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.edit_map_comment_button_ok:
+				View parent = (View) v.getParent();
+				EditText commentView = (EditText) parent.findViewById(R.id.edit_map_comment_commentText);
+				String comment = commentView.getText().toString();
+				
+				TextView mapidView = (TextView) parent.findViewById(R.id.edit_map_comment_mapid);
+				String mapidString = mapidView.getText().toString();
+				Long mapid = Long.parseLong(mapidString);				
+				
+				updateMapComment(mapid, comment);
+				fillData(); // So that the comment is displayed in the map list.
+				break;
+			default:
+				break;
+			}
+			dismissDialog(DIALOG_EDIT_COMMENT_ID);			
 		}
 	}
 }

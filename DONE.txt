@@ -1,5 +1,7 @@
 1.1.1
 Existing reference points are automatically loaded when a map is loaded. The reference points can be cleared using the menu.
+The last used map is auto loaded when starting the application again.
+Added the possibility to save a comment to describe each map (long press on the map).
 
 1.1.0
 Memory is handled better when reloading a map, which should remove a bug where the image was loaded in degraded resolution the second time it was loaded.

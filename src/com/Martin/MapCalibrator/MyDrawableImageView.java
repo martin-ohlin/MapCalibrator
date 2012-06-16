@@ -163,7 +163,7 @@ public class MyDrawableImageView extends ImageView{
 	}
 	
 	protected void setMap(File bitmapFile) {
-		// TODO: If we are called here upon reawakening, then we might have to do som stuff in a different way
+		// TODO: If we are called here upon reawakening, then we might have to do some stuff in a different way
 		// E.g., we shouldn't clear the image matrices
 		
 		// Remove old calibration points and generally reset everything.

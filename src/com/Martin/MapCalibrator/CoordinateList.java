@@ -46,7 +46,6 @@ public class CoordinateList extends ListActivity {
 	 * mDbHelper.createNote(noteName, ""); fillData(); }
 	 */
 	private void fillData() {
-		// Get all of the notes from the database and create the item list
 		Cursor c = mDbHelper.getAllReferencePoints(m_iMapKey);
 		startManagingCursor(c);
 

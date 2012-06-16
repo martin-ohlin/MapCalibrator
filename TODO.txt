@@ -7,10 +7,7 @@
 
 * Waypoints and naming waypoints. 
 
-* Possibility to rename maps.
-
-* Move the option to clear reference points to a better place than when loading the map.
-  Maybe to the reference points list.
+* Possibility to rename maps. Or maybe use a comment. Need to add a new column to the database then.
 
 * Gör det möjligt att ta backup på databasen. Samt inställningarna.
 
