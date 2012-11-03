@@ -11,12 +11,10 @@ public class MyLocationListener implements LocationListener{
 	private MyDrawableImageView view;
 	private boolean GPS = false;
 	private Location lastLocation;
-	private MapCalibrator owner;
-	
-	protected MyLocationListener(LocationManager locationManager, MapCalibrator owner, MyDrawableImageView view) {
+		
+	protected MyLocationListener(LocationManager locationManager, MyDrawableImageView view) {
 		this.view = view;
-		this.locationManager = locationManager;
-		this.owner = owner;
+		this.locationManager = locationManager;	
 	}
 
 	@Override
@@ -26,12 +24,6 @@ public class MyLocationListener implements LocationListener{
 		{
 			lastLocation = location;
 			view.makeUseOfNewLocation(location);
-			if (location.hasAccuracy() == true)
-			{				
-				owner.updateCustomTitleBar(Float.toString(location.getAccuracy()));
-			} else {
-				owner.updateCustomTitleBar("");
-			}
 		}	
 	}
 	

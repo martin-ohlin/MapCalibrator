@@ -3,6 +3,7 @@ package com.Martin.MapCalibrator;
 import java.io.File;
 import java.io.IOException;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -161,7 +162,8 @@ public class MyDrawableImageView extends ImageView{
 		// Make the view redraw itself so that a possible position point is removed
 		postInvalidate();		
 	}
-	
+		
+	@TargetApi(10)
 	protected void setMap(File bitmapFile) {
 		// TODO: If we are called here upon reawakening, then we might have to do some stuff in a different way
 		// E.g., we shouldn't clear the image matrices
@@ -205,7 +207,7 @@ public class MyDrawableImageView extends ImageView{
 					try	{
 						//m_mapRectRead = new Rect(m_mapRect);
 						//m_mapRectRead = new Rect(0, 0, 400, 400); // TODO: Only temporary.
-						// Read the new part of the image from file
+						// Read the new part of the image from file						
 						BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(m_mapFile.getAbsolutePath(), true);
 						options.inSampleSize = m_mapSampleSize;
 						temp = regionDecoder.decodeRegion(m_mapRectRead, options);
@@ -281,6 +283,7 @@ public class MyDrawableImageView extends ImageView{
 		}
 	}	
 		
+	@TargetApi(10)
 	private void reReadImageFromDisk() {
 		if (m_mapFile == null) // Zooming wothout a map?
 			return;

@@ -55,7 +55,6 @@ public class MapCalibrator extends Activity {
 	//private static final String TAG = "MapCalibrator";
 	
 	private MyLocationListener locationListener;
-	private boolean customTitleSupported;
 	
 	private DBAdapter database;
 	
@@ -78,11 +77,13 @@ public class MapCalibrator extends Activity {
 				
 		setContentView(R.layout.main);		
 		
-		if(savedInstanceState != null && !savedInstanceState.isEmpty())
+		if (savedInstanceState != null && !savedInstanceState.isEmpty()) 
 		{
 			m_SavableData = (SaveData) savedInstanceState.getParcelable("laststate");
 			m_SavableData.mapView = (MyDrawableImageView) findViewById(R.id.imageView);
-			m_SavableData.mapView.setSaveableData(m_SavableData.mapViewSaveData);
+			mapSaveData mapSaveDataTemp = (mapSaveData) savedInstanceState.getParcelable("laststate_mapView");
+			m_SavableData.mapView.setSaveableData(mapSaveDataTemp);
+			//m_SavableData.mapView.setSaveableData(m_SavableData.mapViewSaveData);
 			
 			if (m_SavableData.m_bMapIsLoaded == true)
 			{
@@ -95,7 +96,7 @@ public class MapCalibrator extends Activity {
 			if (m_SavableData.m_bIsTrackingPosition == true)
 			{
 				LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-				locationListener = new MyLocationListener(locationManager, this, m_SavableData.mapView);
+				locationListener = new MyLocationListener(locationManager, m_SavableData.mapView);
 				locationListener.startListening();
 			}
 		}
@@ -133,20 +134,19 @@ public class MapCalibrator extends Activity {
 			String lastUsedMap = settings.getString("lastUsedMap", "");			
 			if (lastUsedMap != "")
 			{
-				m_SavableData.mapFile = new File(lastUsedMap);
-				resetForNewMap();
+				File temp = new File(lastUsedMap);
+				if (temp.exists()){
+					m_SavableData.mapFile = new File(lastUsedMap);				
+					resetForNewMap();
+				} else{
+					Toast.makeText(
+							this,
+							"Tried to load the previously used map, but it looks as if it does not exist anymore.",
+							Toast.LENGTH_LONG).show();
+				}
 			}
 			
 			
-		}
-	}
-	
-	protected void updateCustomTitleBar(String right) {
-		if (right.length() > 20) right = right.substring(0, 20);
-		// set up custom title
-		if (customTitleSupported) {			
-			TextView titleTvRight = (TextView) findViewById(R.id.titleTvRight);			
-			titleTvRight.setText(right);	
 		}
 	}
 	
@@ -155,6 +155,7 @@ public class MapCalibrator extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);                
         outState.putParcelable("laststate", m_SavableData);
+        outState.putParcelable("laststate_mapView", m_SavableData.mapView.getSaveableData());        
     }
 	
 	@Override
@@ -216,11 +217,16 @@ public class MapCalibrator extends Activity {
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Boolean supportLargeMaps = preferences.getBoolean("supportLargeMaps", false);
+		if (supportLargeMaps){
+			// Check so that it can be safely used.
+			if (android.os.Build.VERSION.SDK_INT < 10)
+				supportLargeMaps = false;
+		}
 		m_SavableData.mapView.setSupportLargeMaps(supportLargeMaps); // Must be called before setMap(
 		
 		m_SavableData.mapView.setMap(m_SavableData.mapFile);
 		
-		// Save the last used map s that we can auto load it upon next run
+		// Save the last used map so that we can auto load it upon next run
 		SharedPreferences settings = getPreferences(MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString("lastUsedMap", m_SavableData.mapFile.getAbsolutePath());
@@ -248,7 +254,7 @@ public class MapCalibrator extends Activity {
 		{
 			m_SavableData.m_bIsTrackingPosition = true; //TODO:We really don't need this until we have added a reference point
 			LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-			locationListener = new MyLocationListener(locationManager, this, m_SavableData.mapView);
+			locationListener = new MyLocationListener(locationManager, m_SavableData.mapView);
 		}			
 		locationListener.startListening();
 	}
@@ -768,7 +774,7 @@ class SaveData implements Parcelable {
 		
 		out.writeLong(m_iMapKey);
 		
-		out.writeParcelable(mapView.getSaveableData(),flags);		
+		//out.writeParcelable(mapView.getSaveableData(), flags);		
     }
 	
 	public static final Parcelable.Creator<SaveData> CREATOR
@@ -804,6 +810,6 @@ class SaveData implements Parcelable {
 		
 		this.m_iMapKey = in.readLong();
 		
-		mapViewSaveData = in.readParcelable(mapSaveData.class.getClassLoader());
+		//mapViewSaveData = in.readParcelable(mapSaveData.class.getClassLoader());
 	}
 }

@@ -193,6 +193,7 @@ public class MapList extends ListActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		mDbHelper.close();
 	}
 
 	class MySimpleCursorAdapter extends SimpleCursorAdapter {
