@@ -207,7 +207,7 @@ public class MyDrawableImageView extends ImageView{
 					try	{
 						//m_mapRectRead = new Rect(m_mapRect);
 						//m_mapRectRead = new Rect(0, 0, 400, 400); // TODO: Only temporary.
-						// Read the new part of the image from file						
+						// Read the new part of the image from file
 						BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(m_mapFile.getAbsolutePath(), true);
 						options.inSampleSize = m_mapSampleSize;
 						temp = regionDecoder.decodeRegion(m_mapRectRead, options);
