@@ -1,6 +1,9 @@
 package com.Martin.MapCalibrator;
 
 import java.io.File;
+
+import com.Martin.MapCalibrator.misc.DBAdapter;
+
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -70,8 +73,8 @@ public class MapList extends ListActivity {
 		File temp = new File(mapPath);
 		if (temp.exists())
 		{
-			Intent intent = new Intent();			
-			intent.putExtra("MAP_FILE_PATH", mapPath);
+			Intent intent = new Intent();
+			intent.putExtra(MapCalibrator.MAP_FILE_PATH, mapPath);
 			setResult(RESULT_OK, intent);
 			finish();			
 		}
@@ -162,7 +165,7 @@ public class MapList extends ListActivity {
 		Cursor c = mDbHelper.getAllMaps();
 		startManagingCursor(c);
 
-		String[] from = new String[] {DBAdapter.KEY_MAP_FILENAME, DBAdapter.KEY_MAP_FILEPATH, DBAdapter.KEY_MAP_COMMENT, "nbr_of_points"};
+		String[] from = new String[] {DBAdapter.KEY_MAP_FILENAME, DBAdapter.KEY_MAP_FILEPATH, DBAdapter.KEY_MAP_COMMENT, DBAdapter.KEY_NBR_OF_POINTS};
 		int[] to = new int[] {R.id.map_list_file_name, R.id.map_list_file_path, R.id.map_list_file_comment ,R.id.map_list_nbr_of_points};
 
 		if (c != null) {

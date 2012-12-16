@@ -1,5 +1,7 @@
 package com.Martin.MapCalibrator;
 
+import com.Martin.MapCalibrator.misc.DBAdapter;
+
 import android.app.ListActivity;
 import android.content.Context;
 import android.database.Cursor;

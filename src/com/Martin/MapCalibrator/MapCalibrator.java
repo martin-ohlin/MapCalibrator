@@ -5,6 +5,8 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
+import com.Martin.MapCalibrator.misc.DBAdapter;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -40,6 +42,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MapCalibrator extends Activity {
+	
+	public static String MAP_FILE_PATH = "MAP_FILE_PATH";
+	
 	private SaveData m_SavableData;
 	
 	private static final int DIALOG_COORDINATE_VERIFICATION_ID = 0;
@@ -49,9 +54,9 @@ public class MapCalibrator extends Activity {
 	private static final int DIALOG_MAP_FAILED_TO_CALIBRATE    = 5;
 	private static final int DIALOG_RESET_REFERENCE_POINTS     = 6;
 	
-	private static final int TAKE_PICTURE   = 0;
-	private static final int SELECT_PICTURE = 2;
-	private static final int SELECT_MAP     = 3;
+	private static final int ACTIVITY_REQUEST_CODE_TAKE_PICTURE   = 0;
+	private static final int ACTIVITY_REQUEST_CODE_SELECT_PICTURE = 2;
+	private static final int ACTIVITY_REQUEST_CODE_SELECT_MAP     = 3;
 	//private static final String TAG = "MapCalibrator";
 	
 	private MyLocationListener locationListener;
@@ -107,7 +112,7 @@ public class MapCalibrator extends Activity {
 			m_SavableData.mapView = (MyDrawableImageView) findViewById(R.id.imageView);
 			
 			// Restore preferences
-			SharedPreferences settings = getPreferences(MODE_PRIVATE);
+			SharedPreferences settings = (SharedPreferences) getPreferences(MODE_PRIVATE);
 			int oldVersion = settings.getInt("version", 0);
 			int currentVersion = 0;
 			PackageInfo pInfo = null;			
@@ -132,7 +137,7 @@ public class MapCalibrator extends Activity {
 			
 			//Get the last used map (if any)
 			String lastUsedMap = settings.getString("lastUsedMap", "");			
-			if (lastUsedMap != "")
+			if (lastUsedMap.length() != 0)
 			{
 				File temp = new File(lastUsedMap);
 				if (temp.exists()){
@@ -144,9 +149,11 @@ public class MapCalibrator extends Activity {
 							"Tried to load the previously used map, but it looks as if it does not exist anymore.",
 							Toast.LENGTH_LONG).show();
 				}
+			} else {
+				// Send them directly to the map list.
+				//Intent intent = new Intent(this, MapActivity.class);
+				//startActivityForResult(intent, ACTIVITY_REQUEST_CODE_SELECT_MAP);
 			}
-			
-			
 		}
 	}
 	
@@ -191,6 +198,7 @@ public class MapCalibrator extends Activity {
         	locationListener.stopListening();
 	}
 	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -198,7 +206,8 @@ public class MapCalibrator extends Activity {
 		menu.findItem(R.id.new_calibration_point).setEnabled(m_SavableData.m_bMapIsLoaded);
 		return true;
 	}
-
+	
+	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (m_SavableData.m_bMapIsLoaded && !m_SavableData.m_bIsCalibrating)
@@ -209,7 +218,7 @@ public class MapCalibrator extends Activity {
 		menu.findItem(R.id.use_calibration_point).setEnabled(m_SavableData.m_bIsCalibrating);				
 		return true;
 	}
-	
+		
 	private void resetForNewMap() {
 		m_SavableData.coordinateMappingList.clear();
 		m_SavableData.m_bMapIsLoaded = true;
@@ -227,7 +236,7 @@ public class MapCalibrator extends Activity {
 		m_SavableData.mapView.setMap(m_SavableData.mapFile);
 		
 		// Save the last used map so that we can auto load it upon next run
-		SharedPreferences settings = getPreferences(MODE_PRIVATE);
+		SharedPreferences settings = (SharedPreferences) getPreferences(MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString("lastUsedMap", m_SavableData.mapFile.getAbsolutePath());
 		editor.commit();
@@ -284,7 +293,7 @@ public class MapCalibrator extends Activity {
 		Intent fileIntent = new Intent();
 		fileIntent.setType("image/*");
 		fileIntent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(fileIntent, "Select a Map"), SELECT_PICTURE);
+        startActivityForResult(Intent.createChooser(fileIntent, "Select a Map"), ACTIVITY_REQUEST_CODE_SELECT_PICTURE);
 	}
 	
 	@Override
@@ -299,37 +308,6 @@ public class MapCalibrator extends Activity {
 			// Display the point to the user for verification and then possibly save
 			showDialog(DIALOG_COORDINATE_VERIFICATION_ID);
 			return true;
-		case R.id.new_from_file:
-			newFromFile();
-			return true;
-		case R.id.new_from_camera:
-		{
-			SharedPreferences settings = getPreferences(MODE_PRIVATE);
-			int cameraIDCounter = settings.getInt("cameraFileCounter", 1);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putInt("cameraFileCounter", cameraIDCounter + 1);
-			editor.commit();
-			String fileName = "camera_" + cameraIDCounter + ".jpg";
-			m_SavableData.mapFile = new File(mPath.getAbsolutePath() + File.separatorChar + fileName);
-						
-			//In pre 2.0 there was a bug resulting in the image being 4 times smaller than it should have been
-			//http://code.google.com/p/android/issues/detail?id=1480			
-			//Comment 78  by russelljryan, Sep 15, 2010
-			//johnyma22:
-			//(I'm not a Google employee or contributor to Android)
-			//Are all handsets running less than 1.6 troubled by this bug? YES
-			//Are all handsets running v2+ free of this bug? SOME
-			//The bug was fixed in plain vanilla Android 2.0 (e.g. on an N1).
-			//Part of the confusion is that the HTC Sense UI and the Samsung and Motorola custom UIs re-introduce this bug because they provide their own custom Camera application, which often times does not even accept the EXTRA_OUTPUT intent, and if it does, returns a tiny image as in Android 1.5. 
-			//As in Comment #64, barking at Google about this is pointless. The person you need to be hounding is the creator of the impaired UI that came with your phone. 
-			//As an Android developer, this is easily the worst part of Android.
-			
-            Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(m_SavableData.mapFile));
-            startActivityForResult(intent, TAKE_PICTURE);
-
-			return true;
-		}
 		case R.id.information:
 			showDialog(DIALOG_INFORMATION_ID);
 			return true;
@@ -354,10 +332,10 @@ public class MapCalibrator extends Activity {
 			showDialog(DIALOG_RESET_REFERENCE_POINTS);
 			return true;
 		}
-		case R.id.new_from_previous:
+		case R.id.menu_maps:
 		{
-			Intent intent = new Intent(this, MapList.class);			
-			startActivityForResult(intent, SELECT_MAP);
+			Intent intent = new Intent(this, MapActivity.class);
+			startActivityForResult(intent, ACTIVITY_REQUEST_CODE_SELECT_MAP);
 			return true;
 		}
 		case R.id.preferences:
@@ -381,15 +359,7 @@ public class MapCalibrator extends Activity {
 			dialog.setContentView(R.layout.verify_coordinate_dialog);
 			dialog.setTitle("Calibration Point");
 
-			// Map coordinates
-			EditText mapX = (EditText) dialog.findViewById(R.id.mapX);
-			EditText mapY = (EditText) dialog.findViewById(R.id.mapY);
-			mapX.setEnabled(false); // TODO:Move to xml
-			mapY.setEnabled(false); // TODO:Move to xml
-			mapX.setFocusable(false); // TODO:Move to xml
-			mapY.setFocusable(false); // TODO:Move to xml
-
-			final Button button = (Button) dialog.findViewById(R.id.button);
+			Button button = (Button) dialog.findViewById(R.id.button);
 			button.setOnClickListener(new SaveReferencePointClickListener());
 		}
 			break;
@@ -497,7 +467,7 @@ public class MapCalibrator extends Activity {
 		}
 		return dialog;
 	}
-		
+	
 	@Override
 	protected void  onPrepareDialog(int id, Dialog dialog) {
 		super.onPrepareDialog(id, dialog);
@@ -667,9 +637,9 @@ public class MapCalibrator extends Activity {
 	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK){
+        if (requestCode == ACTIVITY_REQUEST_CODE_TAKE_PICTURE && resultCode == Activity.RESULT_OK){
         	resetForNewMap();
-        } else if (requestCode == SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
+        } else if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
         	Uri selectedImage = data.getData();
         	
         	// Uri:s should be of type "content://" according to the documentation for ACTION_GET_CONTENT
@@ -698,54 +668,13 @@ public class MapCalibrator extends Activity {
             	// TODO: Well, what do we do?
             	//Show a dialog perhaps?
             }
-        } else if (requestCode == SELECT_MAP && resultCode == Activity.RESULT_OK)
+        } else if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_MAP && resultCode == Activity.RESULT_OK)
         {
-        	String filePath = data.getExtras().getString("MAP_FILE_PATH");
+        	String filePath = data.getExtras().getString(MAP_FILE_PATH);
         	m_SavableData.mapFile = new File(filePath);
         	resetForNewMap();
         }
     }
-}
-
-class CoordinateMapping implements Parcelable{
-	public PointF mapCoordinate;
-	public PointF gpsCoordinate; // This is the final gps coordinate after possible change and verification by the user
-	
-	public int describeContents() {
-        return 0;
-    }
-
-	public void writeToParcel(Parcel out, int flags) {
-        out.writeFloatArray(new float[]{mapCoordinate.x, mapCoordinate.y});
-        out.writeFloatArray(new float[]{gpsCoordinate.x, gpsCoordinate.x});
-    }
-	
-	public static final Parcelable.Creator<CoordinateMapping> CREATOR
-		= new Parcelable.Creator<CoordinateMapping>() {
-		public CoordinateMapping createFromParcel(Parcel in) {
-			return new CoordinateMapping(in);
-		}
-
-		public CoordinateMapping[] newArray(int size) {
-			return new CoordinateMapping[size];
-		}
-	};
-
-	private CoordinateMapping(Parcel in) {
-		float[] fTemp = new float[2];
-		in.readFloatArray(fTemp);
-		this.mapCoordinate = new PointF(fTemp[0], fTemp[1]);
-		
-		fTemp = new float[2];
-		in.readFloatArray(fTemp);
-		this.gpsCoordinate = new PointF(fTemp[0], fTemp[1]);
-	}
-
-	
-	public CoordinateMapping(PointF mapCoordinate, PointF gpsCoordinate) {
-		this.mapCoordinate = mapCoordinate;		
-		this.gpsCoordinate = gpsCoordinate;
-	}	
 }
 
 class SaveData implements Parcelable {

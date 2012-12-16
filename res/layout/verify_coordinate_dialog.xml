@@ -32,11 +32,15 @@
     <EditText
         android:id="@+id/mapX"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:focusable="false"/>
     <EditText
         android:id="@+id/mapY"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>    
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:focusable="false"/>    
     <Button android:id="@+id/button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
