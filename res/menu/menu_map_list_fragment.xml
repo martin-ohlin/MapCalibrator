@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+ <item
+     android:id="@+id/new_map"
+     android:title="@string/str_new_map" >
+     <menu>
+ 		<item
+ 		    android:id="@+id/menu_new_from_file"
+ 		    android:title="@string/str_new_from_file"> 		    
+ 		</item>	
+ 		<item
+ 		    android:id="@+id/menu_new_from_camera"
+ 		    android:title="@string/str_new_from_camera"> 		    
+ 		</item>
+     </menu>
+ </item>
+</menu>

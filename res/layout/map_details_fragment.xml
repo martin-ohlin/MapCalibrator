@@ -1,0 +1,105 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"    
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"      
+    android:orientation="vertical">
+    
+    <RelativeLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"        
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/map_details_openMapButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/str_open_map" />
+
+    </RelativeLayout>
+    
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp" 
+        android:layout_above="@id/buttonLayout">
+    
+    <LinearLayout
+        android:id="@+id/dataLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"                
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Name: "/>
+
+        <TextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/map_details_file_name"
+            android:layout_width="match_parent"            
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <View
+    		android:layout_width="fill_parent"
+    		android:layout_height="1dp"
+    		android:layout_marginTop="16dp"
+    		android:layout_marginBottom="16dp"
+    		android:background="@android:drawable/divider_horizontal_dark" />
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Path: " />
+
+        <TextView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/map_details_file_path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        
+        <View
+    		android:layout_width="fill_parent"
+    		android:layout_height="1dp"
+    		android:layout_marginTop="16dp"
+    		android:layout_marginBottom="16dp"
+    		android:background="@android:drawable/divider_horizontal_dark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Comment: " />
+
+        <EditText
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/map_details_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        
+        <View
+    		android:layout_width="fill_parent"
+    		android:layout_height="1dp"
+    		android:layout_marginTop="16dp"
+    		android:layout_marginBottom="16dp"
+    		android:background="@android:drawable/divider_horizontal_dark" />
+        
+        <ImageView
+            android:id="@+id/map_details_map_view"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:contentDescription="map"
+            android:src="@drawable/test" />
+
+    </LinearLayout>
+    </ScrollView>    
+	
+</RelativeLayout>
