@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.support.v4.app.Fragment;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,17 +18,23 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.Martin.MapCalibrator.R;
 import com.Martin.MapCalibrator.misc.DBAdapter;
+import com.Martin.MapCalibrator.misc.Util;
 import com.Martin.MapCalibrator.misc.DBAdapter.MapData;
+import com.Martin.MapCalibrator.misc.Util.OnFileFoundListener;
 
 public class MapDetailsFragment extends Fragment {
 
+	private static final int ACTIVITY_REQUEST_CODE_SELECT_PICTURE = 2;
 	private static String MAP_ID = "MAP_ID";
+	
+	private DBAdapter mDbHelper;
 	
 	private OnLoadMapListener mOnLoadMapListener;	
 
@@ -73,33 +80,18 @@ public class MapDetailsFragment extends Fragment {
 			}
 		});
 		
-		// Add a click listener to the load button
-		Button button = (Button) view.findViewById(R.id.map_details_openMapButton);
-		button.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				
-				DBAdapter dbHelper = new DBAdapter(getActivity());
-				dbHelper.open();
-				String filePath = dbHelper.getMapPath(mID);
-				dbHelper.close();
-				
-				File mapFile = new File(filePath);
-				if (mapFile.exists())
-				{
-					mOnLoadMapListener.onLoadMapSelected(filePath);
-				}
-				else
-				{
-					Toast.makeText(getActivity(),
-							"It looks as if the file you selected does not exist.", Toast.LENGTH_LONG)
-							.show();
-				}
-			}
-		});
+		addLoadMapButtonListener(view);
+		addDeleteMapButtonListener(view);
+		addChangeFilePathListener(view);
 		
 		return view;
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		mDbHelper = new DBAdapter(getActivity());
 	}
 	
 	@Override
@@ -157,4 +149,100 @@ public class MapDetailsFragment extends Fragment {
 		
 		mOnLoadMapListener = (OnLoadMapListener) activity;
 	}
+	
+	private void addLoadMapButtonListener(View view) {
+		// Add a click listener to the load button
+		Button button = (Button) view.findViewById(R.id.map_details_openMapButton);
+		button.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				DBAdapter dbHelper = new DBAdapter(getActivity());
+				dbHelper.open();
+				String filePath = dbHelper.getMapPath(mID);
+				dbHelper.close();
+				
+				File mapFile = new File(filePath);
+				if (mapFile.exists())
+				{
+					mOnLoadMapListener.onLoadMapSelected(filePath);
+				}
+				else
+				{
+					Toast.makeText(getActivity(),
+							"It looks as if the file you selected does not exist.", Toast.LENGTH_LONG)
+							.show();
+				}
+			}
+		});
+	}
+	
+	private void addDeleteMapButtonListener(View view) {
+		Button button = (Button) view.findViewById(R.id.map_details_deleteMapButton);
+		button.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				DBAdapter dbHelper = new DBAdapter(getActivity());
+				dbHelper.open();
+				dbHelper.deleteMap(mID);
+				dbHelper.close();
+				Toast.makeText(getActivity(),
+						"The map has been deleted.", Toast.LENGTH_LONG)
+						.show();
+				getActivity().finish();
+			}
+		});
+	}
+	
+	private void addChangeFilePathListener(View view) {
+		// Add a click listener to the load button
+		LinearLayout layout = (LinearLayout) view.findViewById(R.id.map_details_fragment_file_path_layout);
+		layout.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent fileIntent = new Intent();
+				fileIntent.setType("image/*");
+				fileIntent.setAction(Intent.ACTION_GET_CONTENT);
+		        startActivityForResult(Intent.createChooser(fileIntent, "Select a Map"), ACTIVITY_REQUEST_CODE_SELECT_PICTURE);
+			}
+		});
+	}
+	
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
+        	Util.handleSelectedFile(data, this.getActivity(), new OnFileFoundListener() {
+				
+				@Override
+				public void OnFileFound(File file) {
+					updateMapFilePath(file);	
+				}
+			});
+        }
+    }
+    
+    private void updateMapFilePath(File file) {
+ 		if (file.exists()) {
+ 			mDbHelper.open();
+ 			long lMapKey = mDbHelper.getMapKey(file.getAbsolutePath());
+ 			
+ 			if (lMapKey != -1) {
+ 				Toast.makeText(this.getActivity(),
+ 						"The selected map already exists in the database. It can not be added twice.", Toast.LENGTH_LONG)
+ 						.show();
+ 			} else {
+ 				mDbHelper.updateMap(mID, file.getName(), file.getAbsolutePath());
+ 				changeMap(mID);
+ 			}
+ 			mDbHelper.close();
+ 		} else {
+ 			Toast.makeText(this.getActivity(),
+ 					"It looks as if the file you selected does not exist.", Toast.LENGTH_LONG)
+ 					.show();
+ 		}
+     }
 }

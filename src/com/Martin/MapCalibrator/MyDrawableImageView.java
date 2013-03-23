@@ -251,7 +251,7 @@ public class MyDrawableImageView extends ImageView{
 									+ m_mapRectRead.width() + " x "
 									+ m_mapRectRead.height() + ".", Toast.LENGTH_LONG)
 							.show();
-				else
+				else if (m_mapSampleSize != 1)
 					Toast.makeText(
 							this.getContext(),
 							"Original image is "
@@ -262,6 +262,15 @@ public class MyDrawableImageView extends ImageView{
 									+ m_mapSampleSize
 									+ ". Enable support for large maps in the preferences if full resolution is needed.",
 							Toast.LENGTH_LONG).show();
+				else
+					Toast.makeText(
+							this.getContext(),
+							"Image is "
+									+ m_mapRect.width()
+									+ " x "
+									+ m_mapRect.height(),
+							Toast.LENGTH_LONG).show();
+					
 
 				break;
 			} catch(OutOfMemoryError e) {

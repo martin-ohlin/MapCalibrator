@@ -7,27 +7,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-public class MapActivity extends FragmentActivity implements OnMapSelectedListener{
+public class MapListActivity extends FragmentActivity implements OnMapSelectedListener{
 	
-	private static final int ACTIVITY_REQUEST_CODE_SELECT_MAP = 3;
+	private static final int ACTIVITY_REQUEST_CODE_LOAD_MAP = 3;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.map_activity);		
+		setContentView(R.layout.activity_map_list);		
 	}
 
 	@Override
 	public void onMapSelected(long id) {
 		Intent intent = new Intent(this, MapDetailsActivity.class);
 		intent.putExtra(MapDetailsActivity.MAP_ID, id);
-		startActivityForResult(intent, ACTIVITY_REQUEST_CODE_SELECT_MAP);
+		startActivityForResult(intent, ACTIVITY_REQUEST_CODE_LOAD_MAP);
 	}
 	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_MAP && resultCode == Activity.RESULT_OK){
+        if (requestCode == ACTIVITY_REQUEST_CODE_LOAD_MAP && resultCode == Activity.RESULT_OK){
         	String mapFilePath = data.getExtras().getString(MapCalibrator.MAP_FILE_PATH);
         	Intent intent = new Intent();
     		intent.putExtra(MapCalibrator.MAP_FILE_PATH, mapFilePath);

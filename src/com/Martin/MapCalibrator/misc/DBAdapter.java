@@ -112,6 +112,19 @@ public class DBAdapter {
 		initialValues.put(KEY_MAP_FILEPATH, filePath);
 		return db.insert(DATABASE_TABLE_1, null, initialValues);
 	}
+	
+	/**
+	 * Deletes a map and all reference points connected it.
+	 * 
+	 * @param mapKey
+	 *            The row id of the map.
+	 */
+	public void deleteMap(long mapKey) {
+		String whereClause = KEY_MAP_ROWID + "=?";
+		String[] whereArgs = new String[] { Long.toString(mapKey) };
+		db.delete(DATABASE_TABLE_1, whereClause, whereArgs);
+		deleteReferencePoints(mapKey);
+	}
 
 	/**
 	 * Insert a reference point into the database
@@ -121,7 +134,7 @@ public class DBAdapter {
 	 * @param longitude
 	 * @param mapX
 	 * @param mapY
-	 * @return
+	 * @return the id of the inserted reference point.
 	 */
 	private long insertReferencePoint(long mapkey, float latitude,
 			float longitude, float mapX, float mapY) {
@@ -137,7 +150,7 @@ public class DBAdapter {
 	/**
 	 * @param mapkey
 	 * @param point
-	 * @return
+	 * @return the id of the inserted reference point.
 	 */
 	public long insertReferencePoint(long mapkey, CoordinateMapping point) {
 		return insertReferencePoint(mapkey, point.gpsCoordinate.x,
@@ -148,11 +161,13 @@ public class DBAdapter {
 	/**
 	 * Deletes all reference points connected to a specific map.
 	 * 
-	 * @param mapkey
+	 * @param mapKey
 	 *            The row id of the map.
 	 */
-	public void deleteReferencePoints(long mapkey) {
-		db.delete(DATABASE_TABLE_2, KEY_POINTS_MAPKEY + "=" + mapkey, null);
+	public void deleteReferencePoints(long mapKey) {
+		String whereClause = KEY_POINTS_MAPKEY + "=?";
+		String[] whereArgs = new String[] { Long.toString(mapKey) };
+		db.delete(DATABASE_TABLE_2, whereClause, whereArgs);
 	}
 	
 	/**
@@ -169,6 +184,31 @@ public class DBAdapter {
 	{
 		ContentValues updateValues = new ContentValues();
 		updateValues.put(KEY_MAP_COMMENT, comment);
+		String whereClause = KEY_MAP_ROWID + "=?";
+		String[] whereArgs = new String[] { Long.toString(mapKey) };
+		int affectedRows = db.update(DATABASE_TABLE_1, updateValues, whereClause, whereArgs);
+		
+		return affectedRows == 1;
+	}
+	
+	/**
+	 * Updates the file path for a map.
+	 * 
+	 * @param mapkey 
+	 *         The row id of the map.
+	 *
+	 * @param file
+	 *            Name of the file on disk containing the map.
+	 * @param filePath
+	 *            Full path to the map file on the disk.
+	 *  
+	 * @return true if successful, false otherwise
+	 */
+	public boolean updateMap(long mapKey, String file, String filePath)
+	{
+		ContentValues updateValues = new ContentValues();
+		updateValues.put(KEY_MAP_FILENAME, file);
+		updateValues.put(KEY_MAP_FILEPATH, filePath);
 		String whereClause = KEY_MAP_ROWID + "=?";
 		String[] whereArgs = new String[] { Long.toString(mapKey) };
 		int affectedRows = db.update(DATABASE_TABLE_1, updateValues, whereClause, whereArgs);

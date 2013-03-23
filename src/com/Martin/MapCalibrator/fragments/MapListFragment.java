@@ -4,6 +4,8 @@ import java.io.File;
 
 import com.Martin.MapCalibrator.R;
 import com.Martin.MapCalibrator.misc.DBAdapter;
+import com.Martin.MapCalibrator.misc.Util;
+import com.Martin.MapCalibrator.misc.Util.OnFileFoundListener;
 
 import android.app.Activity;
 import android.support.v4.app.ListFragment;
@@ -40,7 +42,7 @@ public class MapListFragment extends ListFragment {
 	private DBAdapter mDbHelper;
 	private OnMapSelectedListener mOnMapSelectedListener;
 	
-	private File activityCameraRequestFile;
+	private File mActivityCameraRequestFile;
 	
 	/* Must be implemented by host activity */
     public interface OnMapSelectedListener {
@@ -55,9 +57,6 @@ public class MapListFragment extends ListFragment {
 
     	// Using this, our fragment will be reused if we change the orientation of the device
     	setRetainInstance(true);
-    	
-    	mDbHelper = new DBAdapter(getActivity());
-		fillData();
     }
     
 	@Override
@@ -67,18 +66,26 @@ public class MapListFragment extends ListFragment {
 		if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
 			String temp = savedInstanceState.getString(CAMERA_REQUEST_FILE);
 			if (temp != null)
-				activityCameraRequestFile = new File(temp);
+				mActivityCameraRequestFile = new File(temp);
         }
 		
 		return view;
 	}
 	
 	@Override
+	public void onResume() {
+		super.onResume();
+		
+		mDbHelper = new DBAdapter(getActivity());
+		fillData();
+	}
+	
+	@Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         
-        if (activityCameraRequestFile != null)
-        	outState.putString(CAMERA_REQUEST_FILE, activityCameraRequestFile.getAbsolutePath());        
+        if (mActivityCameraRequestFile != null)
+        	outState.putString(CAMERA_REQUEST_FILE, mActivityCameraRequestFile.getAbsolutePath());        
     }
 	
 	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater) {    	
@@ -103,8 +110,8 @@ public class MapListFragment extends ListFragment {
 			String fileName = "camera_" + cameraIDCounter + ".jpg";
 
 			Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-			activityCameraRequestFile =  new File(mPath.getAbsolutePath() + File.separatorChar + fileName);
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(activityCameraRequestFile));
+			mActivityCameraRequestFile =  new File(mPath.getAbsolutePath() + File.separatorChar + fileName);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mActivityCameraRequestFile));
 			startActivityForResult(intent, ACTIVITY_REQUEST_CODE_TAKE_PICTURE);
 
 			return true;
@@ -117,49 +124,29 @@ public class MapListFragment extends ListFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ACTIVITY_REQUEST_CODE_TAKE_PICTURE && resultCode == Activity.RESULT_OK){
-        	saveMapToDatabase(activityCameraRequestFile);
+        	saveMapToDatabase(mActivityCameraRequestFile);
         } else if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
-        	Uri selectedImage = data.getData();
-        	
-        	// Uri:s should be of type "content://" according to the documentation for ACTION_GET_CONTENT
-        	// The Astro file manager returns an Uri of Type "file://" so we must handle that as well.
-        	if (selectedImage.toString().toLowerCase().startsWith("content://"))
-        	{
-        		String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                Cursor cursor = this.getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                if (cursor != null) {
-                	cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex); // file path of selected image
-                    cursor.close();
-                    
-                    File mapFile = new File(filePath);
-                	saveMapToDatabase(mapFile);                    
-                }
-        	} else if (selectedImage.toString().toLowerCase().startsWith("file://")) {                
-            	// Handle stuff from the ASTRO file manager
-            	String filePath = selectedImage.getPath();
-            	File mapFile = new File(filePath);
-            	saveMapToDatabase(mapFile);
-            } else {
-            	// TODO: Well, what do we do?
-            	//Show a dialog perhaps?
-            }
+        	Util.handleSelectedFile(data, this.getActivity(), new OnFileFoundListener() {
+				
+				@Override
+				public void OnFileFound(File file) {
+					saveMapToDatabase(file);
+				}
+			});
         }
     }
     
-    private void saveMapToDatabase(File mapFile) {
-		if (mapFile.exists()) {
+    private void saveMapToDatabase(File file) {
+		if (file.exists()) {
 			mDbHelper.open();
-			long lMapKey = mDbHelper.getMapKey(mapFile.getAbsolutePath());
+			long lMapKey = mDbHelper.getMapKey(file.getAbsolutePath());
 			
 			if (lMapKey != -1) {
 				Toast.makeText(this.getActivity(),
 						"The selected map already exists in the database. It can not be added twice.", Toast.LENGTH_LONG)
 						.show();
 			} else {
-				lMapKey = mDbHelper.insertMap(mapFile.getName(), mapFile.getAbsolutePath());
+				lMapKey = mDbHelper.insertMap(file.getName(), file.getAbsolutePath());
 				Cursor cursor = mDbHelper.getAllMaps();
 				if (this.getListAdapter() != null) {
 					((SimpleCursorAdapter) this.getListAdapter()).changeCursor(cursor);
@@ -183,10 +170,8 @@ public class MapListFragment extends ListFragment {
 		int[] to = new int[] {R.id.map_list_file_name, R.id.map_list_file_path, R.id.map_list_file_comment ,R.id.map_list_nbr_of_points};
 
 		if (c != null) {
-			if (c.moveToFirst()) {
-				SimpleCursorAdapter maps = new MySimpleCursorAdapter(getActivity(), R.layout.map_row, c, from, to);
-				setListAdapter(maps);
-			}
+			SimpleCursorAdapter maps = new MySimpleCursorAdapter(getActivity(), R.layout.map_row, c, from, to);
+			setListAdapter(maps);
 		}
 		mDbHelper.close();
 	}

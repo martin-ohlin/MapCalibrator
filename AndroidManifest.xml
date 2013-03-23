@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.Martin.MapCalibrator"
-      android:installLocation="auto" android:versionCode="18" android:versionName="1.5">
+      android:installLocation="auto" android:versionCode="19" android:versionName="1.6">
       
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
@@ -23,7 +23,7 @@
         </activity>
         <activity android:name=".CoordinateList" android:exported="false"></activity>
         <activity android:name=".MapList" android:exported="false"></activity>
-        <activity android:name="com.Martin.MapCalibrator.MapActivity" android:exported="false"></activity>
+        <activity android:name="com.Martin.MapCalibrator.MapListActivity" android:exported="false"></activity>
         <activity
             android:name="com.Martin.MapCalibrator.MapDetailsActivity"
             android:exported="false"

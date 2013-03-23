@@ -18,18 +18,15 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 import android.text.Html;
 import android.text.format.Time;
 import android.view.Menu;
@@ -54,8 +51,6 @@ public class MapCalibrator extends Activity {
 	private static final int DIALOG_MAP_FAILED_TO_CALIBRATE    = 5;
 	private static final int DIALOG_RESET_REFERENCE_POINTS     = 6;
 	
-	private static final int ACTIVITY_REQUEST_CODE_TAKE_PICTURE   = 0;
-	private static final int ACTIVITY_REQUEST_CODE_SELECT_PICTURE = 2;
 	private static final int ACTIVITY_REQUEST_CODE_SELECT_MAP     = 3;
 	//private static final String TAG = "MapCalibrator";
 	
@@ -288,14 +283,6 @@ public class MapCalibrator extends Activity {
 		}
 	}
 	
-	private void newFromFile() {
-		//showDialog(DIALOG_LOAD_FILE);
-		Intent fileIntent = new Intent();
-		fileIntent.setType("image/*");
-		fileIntent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(fileIntent, "Select a Map"), ACTIVITY_REQUEST_CODE_SELECT_PICTURE);
-	}
-	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
@@ -334,7 +321,7 @@ public class MapCalibrator extends Activity {
 		}
 		case R.id.menu_maps:
 		{
-			Intent intent = new Intent(this, MapActivity.class);
+			Intent intent = new Intent(this, MapListActivity.class);
 			startActivityForResult(intent, ACTIVITY_REQUEST_CODE_SELECT_MAP);
 			return true;
 		}
@@ -637,44 +624,34 @@ public class MapCalibrator extends Activity {
 	
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ACTIVITY_REQUEST_CODE_TAKE_PICTURE && resultCode == Activity.RESULT_OK){
-        	resetForNewMap();
-        } else if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
-        	Uri selectedImage = data.getData();
-        	
-        	// Uri:s should be of type "content://" according to the documentation for ACTION_GET_CONTENT
-        	// The Astro file manager returns an Uri of Type "file://" so we must handle that as well.
-        	if (selectedImage.toString().toLowerCase().startsWith("content://"))
-        	{
-        		String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                if (cursor != null) {
-                	cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex); // file path of selected image
-                    cursor.close();
-                    
-                    m_SavableData.mapFile = new File(filePath);
-                	
-                	resetForNewMap();
-                }
-        	} else if (selectedImage.toString().toLowerCase().startsWith("file://")) {                
-            	// Handle stuff from the ASTRO file manager
-            	String filePath = selectedImage.getPath();
-            	m_SavableData.mapFile = new File(filePath);            	
-            	resetForNewMap();
-            } else {
-            	// TODO: Well, what do we do?
-            	//Show a dialog perhaps?
-            }
-        } else if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_MAP && resultCode == Activity.RESULT_OK)
+        if (requestCode == ACTIVITY_REQUEST_CODE_SELECT_MAP && resultCode == Activity.RESULT_OK)
         {
         	String filePath = data.getExtras().getString(MAP_FILE_PATH);
+        	if (!isMapSupported(filePath))
+        		return;
+        	
         	m_SavableData.mapFile = new File(filePath);
         	resetForNewMap();
         }
     }
+	
+	private Boolean isMapSupported(String filePath) {
+		//http://developer.android.com/guide/appendix/media-formats.html
+		if (filePath.toLowerCase().endsWith(".jpg") ||
+				filePath.toLowerCase().endsWith(".gif") ||
+				filePath.toLowerCase().endsWith(".png") ||
+				filePath.toLowerCase().endsWith(".bmp") ||
+				filePath.toLowerCase().endsWith(".webp")) {
+			return true;
+		} else {
+			Toast.makeText(
+					this,
+					"The selected file format is not natively supported in android", Toast.LENGTH_LONG)
+					.show();
+			
+			return false;
+		}		
+	}
 }
 
 class SaveData implements Parcelable {

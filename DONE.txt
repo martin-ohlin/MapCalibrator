@@ -1,3 +1,6 @@
+1.6
+Bugfixes.
+
 1.1.1
 Existing reference points are automatically loaded when a map is loaded. The reference points can be cleared using the menu.
 The last used map is auto loaded when starting the application again.
