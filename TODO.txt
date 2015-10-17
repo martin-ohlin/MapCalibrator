@@ -1,3 +1,8 @@
+Google Analytics
+Synka filer till Google Drive?
+Spara kalibreringsdata i EXIF? Hur mycket kan man spara där?
+
+
 * One user has reported that some images does not load completely. The top and bottom is cut off.
   Maybe this is due to the delayed loading? 
 

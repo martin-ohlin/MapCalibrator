@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.Martin.MapCalibrator"
+    android:installLocation="auto"
+    android:versionCode="20"
+    android:versionName="1.7" >
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" >
+    </uses-permission>
+
+    <application
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.Light"
+        android:allowBackup="true" >
+        <activity
+            android:name=".MapCalibrator"
+            android:configChanges="mcc|mnc|keyboard|locale|orientation|keyboardHidden|uiMode|screenSize"
+            android:label="@string/app_name"
+            android:exported="false" >
+        </activity>
+        <activity
+            android:name=".CoordinateList"
+            android:exported="false" >
+        </activity>
+        <activity
+            android:name="com.Martin.MapCalibrator.MapListActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.Martin.MapCalibrator.MapDetailsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
+        <activity
+            android:name=".MyPreferencesActivity"
+            android:exported="false" >
+        </activity>
+    </application>
+
+</manifest>

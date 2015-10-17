@@ -1,0 +1,23 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/padding"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/map_list_file_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="map.jpg" />
+
+    <TextView
+        android:id="@+id/map_list_file_comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/map_list_file_name"
+        tools:text="This is a very nice comment, although a bit long maybe."/>
+
+
+</RelativeLayout>
